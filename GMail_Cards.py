@@ -15,6 +15,7 @@
 import email
 import imaplib
 import json
+import hashlib
 from getpass import getpass
 
 authentication={'email':"",'password':""}
@@ -71,7 +72,7 @@ class GMail(): # Class for Getting Inbox Messages and Checking if they have any 
 			self.get_email_messages()
 		for message in self.messages:
 			if self.does_have_schema(message):
-				schemas_in_message=0 ## fix: later make it work with many schema occurences in each message
+				schemas_in_message=0
 				schema=message.split("application/ld+json")[1].split(">")[1]
 				if "list" in str(type(schema)):
 					schema = ">".join(schema)
@@ -80,6 +81,8 @@ class GMail(): # Class for Getting Inbox Messages and Checking if they have any 
 				self.schemas.append(json.loads(schema))
 
 class Schemas(): # Gmail Card Renderer
+	identities=[]
+	
 	def human_readable_card(self,card={}): # Convert Dictionary with Gmail Card Details to a Human Readable String
 		stringToReturn=""
 		for key in card.keys():
@@ -191,20 +194,22 @@ class Schemas(): # Gmail Card Renderer
 			for card in gmail_cards:
 				rendered.append(schema_renderer.parse_schema(card))
 			for Card in rendered:
-				toreturn.append(self.human_readable_card(Card))
+				identity = hashlib.sha1(str(Card).strip()).hexdigest()
+				if identity in self.identities:
+					pass
+				else:
+					self.identities.append(identity)
+					toreturn.append(self.human_readable_card(Card))
 		return toreturn
 
 if __name__ == "__main__":
-	mail=GMail()					# Create a Gmail Object to get Messages and check for Schemas/Gmail Cards
-	mail.get_email_messages()		# Get inbox Messages to mail.messages [it is an array]
-	mail.get_schemas()				# Check and Get all Schemas to mail.schemas
-	gmail_cards=mail.schemas		
-	rendered=[]
 	schema_renderer=Schemas()
+	gmail_cards = schema_renderer.get_cards() 		# Get all Gmail Cards Available (Already Human Readable)
 
-	if len(gmail_cards) > 0: # Render all Gmail Cards
-		for card in gmail_cards:
-			rendered.append(schema_renderer.parse_schema(card))
+	if len(gmail_cards) > 0: 		# Render all Gmail Cards
+		for Card in gmail_cards: 	# Print all Gmail Cards
+			print(Card)				# Print the Card in Human Readable Form
+			print("\n")
 	else:
 		print("\n--> No Cards Found! Sorry!\n\n")
 		print("If you want to test the Gmail Cards, try going to these websites: [So as to be able to send Schemas in E-Mails]")
@@ -214,7 +219,3 @@ if __name__ == "__main__":
 		print("		https://developers.google.com/gmail/schemas/reference/index")
 		print("		(Navigate from the Reference Guide Dropdown at the bottom left of the Sidebar)")
 		print("\n\n  Happy Hacking!")
-
-	for Card in rendered: 				# Print all Gmail Cards
-		print(schema_renderer.human_readable_card(Card))	# Print the Card in Human Readable Form
-		print("\n")
