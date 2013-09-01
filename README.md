@@ -7,15 +7,17 @@ Enjoy!
 
 
 
-( All the code you need to use is under the if __name__ == '__main__' part. )
+( All the code you need to use/modify is under the if __name__ == '__main__' part. )
 
 
 
 
 
 
+* Please note that this code hasn't been yet tested on Actual Emails with Gmail Cards. But works perfectly with all the samples from the Google Developers Website.
 
-*** Please note that this code hasn't been yet tested on Actual Emails with Gmail Cards. But works perfectly with all the samples from the Google Developers Website.
-*** If you find any bugs, please share on Github!
+* But if an E-Mail (in Plain Text) has the appropriate Code, like in Google Developers, it is rendered Successfully!
+
 
 	Thanks.
+
